@@ -1,0 +1,97 @@
+---
+title: "redlining_data_collection"
+output: html_notebook
+---
+
+Import libraries:
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(sjmisc)
+```
+
+Import Redlining indicator data files (excel):
+2000
+```{r}
+Redlining_Indicator_2000 <- read_excel("data/Redlining_Indicator_2000.xlsx")
+```
+
+2010
+```{r}
+Redlining_Indicator_2010 <- read_excel("data/Redlining_Indicator_2010.xlsx")
+```
+
+2020
+```{r}
+Redlining_Indicator_2020 <- read_excel("data/Redlining_Indicator_2020.xlsx")
+```
+
+Import census tract income data files (csv):
+2000
+```{r}
+Raw_income_census_2000 <- read_csv("data/DECENNIALDPSF32000.csv")
+```
+
+2010
+```{r}
+Raw_income_census_2010 <- read_csv("data/ACSST5Y2010.S1901-Data.csv", skip=2, col_names=FALSE)
+```
+
+2020
+```{r}
+Raw_income_census_2020 <- read_csv("data/ACSST5Y2020.S1901-Data.csv")
+
+```
+
+import metadata files for column headers and concat into vectors:
+2010:
+```{r}
+census_headers_2010 <- read_csv("data/ACSST5Y2010.S1901-Column-Metadata.csv")
+
+```
+Determine which income measurement and its division levels are present in all three census income data files. According to the census website, Household income takes into account all earnings from each household member but aso income from SS, dividends, interest, and other sources.
+Therefore, need to pull household income from each data set so that we are comparing apples to apples.
+
+
+filter 2010 header file for "household" and remove all other unnecessary rows that aren't household income levels
+```{r}
+census_headers_2010 |> 
+    filter(str_detect(Label, "Household")) |> 
+    filter(str_detect(Label, "IMPUTED", negate=TRUE)) |> 
+    filter(str_detect(Label, "Margin", negate=TRUE))
+
+```
+
+
+2020:
+```{r}
+census_headers_2020 <- read_csv("data/ACSST5Y2020.S1901-Column-Metadata.csv")
+
+```
+filter 2010 header file for "household" and remove all other unnecessary rows that aren't household income levels
+```{r}
+census_headers_2020 |> 
+    filter(str_detect(Label, "Household")) |> 
+    filter(str_detect(Label, "IMPUTED", negate=TRUE)) |> 
+    filter(str_detect(Label, "Margin", negate=TRUE)) |> 
+    filter(str_detect(Label, "ALLOCATED", negate=TRUE))
+```
+
+compare header files:
+```{r}
+census_headers_2010 |> 
+    anti_join(census_headers_2020, by="Column Name")
+```
+No stray entries so headers match up
+
+
+
+Raw income data for 2000 needs to be pivoted to long version and drop unneeded series, keeping household income for all of the nashville census tracts:\
+```{r}
+Raw_income_census_2000 |> 
+        rotate_df(cn=TRUE)
+```
+
+
+
