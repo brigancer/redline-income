@@ -35,7 +35,7 @@ Raw_income_census_2000 <- read_csv("data/DECENNIALDPSF32000.csv")
 
 2010
 ```{r}
-Raw_income_census_2010 <- read_csv("data/ACSST5Y2010.S1901-Data.csv", skip=2, col_names=FALSE)
+Raw_income_census_2010 <- read_csv("data/ACSST5Y2010.S1901-Data.csv")
 ```
 
 2020
@@ -56,7 +56,7 @@ Therefore, need to pull household income from each data set so that we are compa
 
 filter 2010 header file for "household" and remove all other unnecessary rows that aren't household income levels
 ```{r}
-census_headers_2010 |> 
+census_headers_2010<-census_headers_2010 |> 
     filter(str_detect(Label, "Household")) |> 
     filter(str_detect(Label, "IMPUTED", negate=TRUE)) |> 
     filter(str_detect(Label, "Margin", negate=TRUE))
@@ -69,9 +69,9 @@ census_headers_2010 |>
 census_headers_2020 <- read_csv("data/ACSST5Y2020.S1901-Column-Metadata.csv")
 
 ```
-filter 2010 header file for "household" and remove all other unnecessary rows that aren't household income levels
+filter 2020 header file for "household" and remove all other unnecessary rows that aren't household income levels
 ```{r}
-census_headers_2020 |> 
+census_headers_2020<-census_headers_2020 |> 
     filter(str_detect(Label, "Household")) |> 
     filter(str_detect(Label, "IMPUTED", negate=TRUE)) |> 
     filter(str_detect(Label, "Margin", negate=TRUE)) |> 
@@ -85,12 +85,42 @@ census_headers_2010 |>
 ```
 No stray entries so headers match up
 
-
-
-Raw income data for 2000 needs to be pivoted to long version and drop unneeded series, keeping household income for all of the nashville census tracts:\
+Use resultant headers to create vector to select those columns from raw income datasets.
 ```{r}
-Raw_income_census_2000 |> 
-        rotate_df(cn=TRUE)
+
+headers_vector_2010<-census_headers_2010 |>
+    pull(`Column Name`)
+```
+add those column names to geo_id and name columns then select columns.
+```{r}
+headers_vector_2010<- c("GEO_ID", "NAME", headers_vector_2010)
+```
+```{r}
+davidson_income_census_2010<-Raw_income_census_2010 |> 
+    select(all_of(headers_vector_2010))
+```
+
+2020:
+```{r}
+headers_vector_2020<-census_headers_2020 |>
+    pull(`Column Name`)
+```
+```{r}
+headers_vector_2020<- c("GEO_ID", "NAME", headers_vector_2020)
+```
+```{r}
+davidson_income_census_2020<-Raw_income_census_2020 |>
+    select(all_of(headers_vector_2020))
+```
+
+
+
+Raw income data for 2000 need rows 53-66 which keeps household income for all of the nashville census tracts then to be rotated to long version:
+```{r}
+davidson_income_census_2000<-Raw_income_census_2000 |> 
+    slice(53:66) |> 
+    rotate_df(cn=TRUE)
+
 ```
 
 
