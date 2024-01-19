@@ -123,5 +123,104 @@ davidson_income_census_2000<-Raw_income_census_2000 |>
 
 ```
 
+census income for 2010 and 2020 have no absolute numbers, just tract population and percentages. need to mutate to show numbers.
+```{r}
+davidson_income_census_2010 
+    #mutate()
+```
+```{r}
+davidson_income_census_2000[1,1]
+```
+shows that the first column data is an index and not showing up as variables. need to convert the rownames to a column
+```{r}
+davidson_income_census_2000 <- davidson_income_census_2000 |> 
+    rownames_to_column(var="NAME")
+```
+also this is a df and not a tibble so that needs to be converted:
+```{r}
+tibble(davidson_income_census_2000)
+```
+In order to separate out percentages from number rows, we must first split the first column into 2 columns using '!!' as the separator.
+```{r}
+davidson_income_census_2000 <- davidson_income_census_2000 |> 
+    separate_wider_delim(NAME,delim = '!!', names=c("NAME","VALUE"))
+```
+find column names first
+```{r}
+davidson_income_census_2000 |> 
+    colnames()
+```
+clean up and rename columns
+```{r}
+income_headers <- c("NAME", "VALUE", "HOUSEHOLDS", "income<$10k", "income$10-$14,999","income$15-$24,999", "income$25-$34,999", "income$35-$49,999", "income$50-$74,999", "income$75-$99,999", "income$100-$149,999", "income$150-$199,999", "income>$200", "median_household_income", "With_earnings", "mean_household_income")
+colnames(davidson_income_census_2000)<-income_headers
+```
+```{r}
+
+```
+remove all commas from numerical data and mutate across to convert character values to numeric
+
+```{r}
+davidson_income_census_2000 <- davidson_income_census_2000 |> 
+    mutate(across(-c(NAME, VALUE), ~as.numeric(str_remove_all(., ","))))
+```
+
+remove "with earnings" column
+```{r}
+davidson_income_census_2000 <- davidson_income_census_2000 |> 
+    select(-With_earnings)
+```
+
+rename columns for 2010 and 2020:
+```{r}
+income_headers <- c("GEO_ID", "NAME", "HOUSEHOLDS", "income<$10k", "income$10-$14,999","income$15-$24,999", "income$25-$34,999", "income$35-$49,999", "income$50-$74,999", "income$75-$99,999", "income$100-$149,999", "income$150-$199,999", "income>$200", "median_household_income", "mean_household_income")
+colnames(davidson_income_census_2010)<-income_headers
+
+colnames(davidson_income_census_2020)<-income_headers
+```
+remove first row
+```{r}
+davidson_income_census_2010 <- davidson_income_census_2010 |>
+    slice(-1)
+```
+
+
+```{r}
+
+davidson_income_census_2020 <- davidson_income_census_2020 |> 
+    slice(-1)
+
+```
+change all columns to numeric
+```{r}
+davidson_income_census_2010 <- davidson_income_census_2010 |> 
+    mutate(across(-c(GEO_ID, NAME), ~as.numeric(.)))
+
+davidson_income_census_2020 <- davidson_income_census_2020 |> 
+    mutate(across(-c(GEO_ID, NAME), ~as.numeric(.)))
+```
+create counts from percent values for 2010 and 2020
+
+```{r}
+davidson_income_counts_2010 <- davidson_income_census_2010 |> 
+    mutate(across(-c(GEO_ID, NAME, HOUSEHOLDS, median_household_income, mean_household_income),~round(HOUSEHOLDS*./100)))
+
+davidson_income_counts_2020 <- davidson_income_census_2020 |> 
+    mutate(across(-c(GEO_ID, NAME, HOUSEHOLDS, median_household_income, mean_household_income),~round(HOUSEHOLDS*./100)))
+```
+
+spot check rows to make sure calculations add up to tract total households
+```{r}
+davidson_income_counts_2010 |> 
+    rowwise() |> 
+    select(-c(GEO_ID, NAME, HOUSEHOLDS, median_household_income, mean_household_income)) |> 
+    rowSums()
+```
+and double check:
+```{r}
+davidson_income_counts_2010 |> 
+    pull(HOUSEHOLDS)
+```
+
 
 
