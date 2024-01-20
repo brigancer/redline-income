@@ -308,7 +308,7 @@ davidson_redlining_2020 <- Redlining_Indicator_2020 |>
 
 
 write all df's to csv files for further EDA:
-```{r}
+#```{r}
 write_csv(davidson_income_counts_2000, "davidson_income_counts_2000", append = FALSE)
 write_csv(davidson_income_counts_2010, "davidson_income_counts_2010", append = FALSE)
 write_csv(davidson_income_counts_2020, "davidson_income_counts_2020", append = FALSE)
