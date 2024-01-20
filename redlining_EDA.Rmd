@@ -1,0 +1,53 @@
+---
+title: "redlining EDA"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+
+```
+
+```{r}
+davidson_income_counts_2000 <- read_csv("davidson_income_counts_2000", col_types = cols(.default="d", GEO_ID="c", NAME="c"))
+```
+
+
+```{r}
+davidson_income_counts_2010 <- read_csv("davidson_income_counts_2010", col_types = cols(.default="d", GEO_ID="c", NAME="c"))
+```
+
+
+```{r}
+davidson_income_counts_2020 <- read_csv("davidson_income_counts_2020", col_types = cols(.default="d", GEO_ID="c", NAME="c"))
+```
+
+
+```{r}
+davidson_income_percent_2000 <- read_csv("davidson_income_percent_2000", col_types = cols(.default="d", GEO_ID="c", NAME="c", CBSA10="c", METRO_NAME="c"))
+```
+
+
+```{r}
+davidson_income_percent_2010 <- read_csv("davidson_income_percent_2010", col_types = cols(.default="d", GEO_ID="c", NAME="c", CBSA10="c", METRO_NAME="c"))
+```
+
+
+```{r}
+davidson_income_percent_2020 <- read_csv("davidson_income_percent_2020", col_types = cols(.default="d", GEO_ID="c", NAME="c", CBSA10="c", METRO_NAME="c"))
+```
+
+
+```{r}
+davidson_redlining_2000 <- read_csv("davidson_redlining_2000", col_types = cols(.default="c", HRI2000="d", INTERVAL2000="d"))
+```
+
+
+```{r}
+davidson_redlining_2010 <- read_csv("davidson_redlining_2010", col_types = cols(.default="c", HRI2010="d", INTERVAL2010="d"))
+```
+
+
+```{r}
+davidson_redlining_2020 <- read_csv("davidson_redlining_2020", col_types = cols(.default="c", HRI2020="d", INTERVAL2020="d"))
+
+```
