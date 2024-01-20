@@ -178,20 +178,18 @@ colnames(davidson_income_census_2010)<-income_headers
 
 colnames(davidson_income_census_2020)<-income_headers
 ```
-remove first row
+
+remove first row (DO NOT RUN THESE CHUNKS MORE THAN ONCE)
 ```{r}
 davidson_income_census_2010 <- davidson_income_census_2010 |>
     slice(-1)
-```
-
-
-```{r}
 
 davidson_income_census_2020 <- davidson_income_census_2020 |> 
     slice(-1)
 
 ```
-change all columns to numeric
+
+change all numeric columns to numeric from chr:
 ```{r}
 davidson_income_census_2010 <- davidson_income_census_2010 |> 
     mutate(across(-c(GEO_ID, NAME), ~as.numeric(.)))
@@ -199,8 +197,8 @@ davidson_income_census_2010 <- davidson_income_census_2010 |>
 davidson_income_census_2020 <- davidson_income_census_2020 |> 
     mutate(across(-c(GEO_ID, NAME), ~as.numeric(.)))
 ```
-create counts from percent values for 2010 and 2020
 
+create counts from percent values for 2010 and 2020
 ```{r}
 davidson_income_counts_2010 <- davidson_income_census_2010 |> 
     mutate(across(-c(GEO_ID, NAME, HOUSEHOLDS, median_household_income, mean_household_income),~round(HOUSEHOLDS*./100)))
@@ -221,6 +219,104 @@ and double check:
 davidson_income_counts_2010 |> 
     pull(HOUSEHOLDS)
 ```
+convert original income census data to "percent" to correspond with "count" df:
+```{r}
+davidson_income_percent_2010 <- davidson_income_census_2010
+
+davidson_income_percent_2020 <- davidson_income_census_2020 
+    
+```
+extract tract number from name column for 2000 (and relocate before "NAME")
+extract . from tract
+append state and county codes to beginning of tract ID to create GEO_ID column then drop tract column:
+```{r}
+davidson_income_census_2000 <- davidson_income_census_2000 |> 
+    mutate(tract=str_sub(NAME, start=14L, end=-29L)) |> 
+    relocate(tract, .before=NAME) |> 
+    mutate(tract=parse_number(tract, locale = locale(grouping_mark = "."))) |> 
+    mutate(tract=as.character(tract)) |> 
+    mutate(tract=str_pad(tract, width=6, pad='0')) |> 
+    mutate(tract= paste0("47037", tract)) |> 
+    rename(GEO_ID=tract)
+```
+
+separate 2000 data into percent and count dfs and drop value column
+```{r}
+davidson_income_counts_2000 <- davidson_income_census_2000 |> 
+    filter(VALUE %in% "Number") |> 
+    select(-VALUE)
+
+davidson_income_percent_2000 <- davidson_income_census_2000 |> 
+    filter(VALUE %in% "Percent") |> 
+    select(-VALUE)
+```
+
+rename redlining geo id columns
+```{r}
+Redlining_Indicator_2000 <- Redlining_Indicator_2000 |> 
+    rename(GEO_ID=GEOID00)
+Redlining_Indicator_2010 <- Redlining_Indicator_2010 |> 
+    rename(GEO_ID=GEOID10)
+Redlining_Indicator_2020 <- Redlining_Indicator_2020 |> 
+    rename(GEO_ID=GEOID20)
+```
 
 
+left join 2000 data with redlining data to verify matches
+```{r}
+davidson_income_percent_2000 <- left_join(davidson_income_percent_2000, Redlining_Indicator_2000)
+```
+for 2010 create new GEO_ID col with values that match redlining data
+```{r}
+davidson_income_percent_2010 <- davidson_income_percent_2010 |> 
+    mutate(GEO_ID=str_sub(GEO_ID, start=10L))
+
+```
+
+left join 2010 data with redlining
+```{r}
+davidson_income_percent_2010 <- left_join(davidson_income_percent_2010, Redlining_Indicator_2010)
+```
+for 2020 create new GEO_ID col with values that match redlining data
+
+```{r}
+davidson_income_percent_2020 <- davidson_income_percent_2020 |> 
+    mutate(GEO_ID=str_sub(GEO_ID, start=10L))
+```
+
+left join 2020 data with redlining
+```{r}
+davidson_income_percent_2020 <- left_join(davidson_income_percent_2020, Redlining_Indicator_2020)
+```
+
+trim geo_id col for counts df's
+also trim redlining df's to just davidson county:
+```{r}
+davidson_income_counts_2010 <- davidson_income_counts_2010 |> 
+    mutate(GEO_ID=str_sub(GEO_ID, start=10L))
+davidson_income_counts_2020 <- davidson_income_counts_2020 |> 
+    mutate(GEO_ID=str_sub(GEO_ID, start=10L))
+```
+```{r}
+davidson_redlining_2000 <- Redlining_Indicator_2000 |> 
+    filter(str_detect(METRO_NAME, "Davidson"))
+davidson_redlining_2010 <- Redlining_Indicator_2010 |> 
+    filter(str_detect(METRO_NAME, "Davidson"))
+davidson_redlining_2020 <- Redlining_Indicator_2020 |> 
+    filter(str_detect(METRO_NAME, "Davidson"))
+```
+
+
+write all df's to csv files for further EDA:
+```{r}
+write_csv(davidson_income_counts_2000, "davidson_income_counts_2000", append = FALSE)
+write_csv(davidson_income_counts_2010, "davidson_income_counts_2010", append = FALSE)
+write_csv(davidson_income_counts_2020, "davidson_income_counts_2020", append = FALSE)
+write_csv(davidson_income_percent_2000, "davidson_income_percent_2000", append = FALSE)
+write_csv(davidson_income_percent_2010,"davidson_income_percent_2010", append = FALSE)
+write_csv(davidson_income_percent_2020,"davidson_income_percent_2020", append = FALSE)
+write_csv(davidson_redlining_2000,"davidson_redlining_2000", append = FALSE)
+write_csv(davidson_redlining_2010,"davidson_redlining_2010", append = FALSE)
+write_csv(davidson_redlining_2020,"davidson_redlining_2020", append = FALSE)
+```
 
