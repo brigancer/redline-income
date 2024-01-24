@@ -1,0 +1,39 @@
+---
+title: "Redlining geospatial notebook"
+output: html_notebook
+---
+
+```{r}
+library(sf)
+library(tidyverse)
+```
+
+```{r}
+HRI2000 <- st_read("data/HRI2000/HRI2000.shp")
+```
+
+
+```{r}
+HRI2000 |> 
+    ggplot()+
+    geom_sf()
+```
+
+DOH!!! it's the shape file for the whole effin country!!
+
+```{r}
+HRI2000 |> 
+    head()
+```
+filter for davidson county:
+```{r}
+HRI2000 <- HRI2000 |> 
+    filter(str_detect(METRO_NAME, "Davidson"))
+
+```
+```{r}
+HRI2000 |> 
+    ggplot()+
+    geom_sf()
+```
+
