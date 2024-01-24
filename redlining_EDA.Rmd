@@ -6,6 +6,7 @@ output: html_notebook
 library(tidyverse)
 library(Inflation)
 library(ggplot2)
+library(viridis)
 ```
 
 ```{r}
@@ -68,15 +69,38 @@ pivot_percent_2000 <- percent_redline_2000 |>
 ```
 set factor levels for to force x-axis order:
 ```{r}
-pivot_percent_2000 |> 
-    factor(income_level,levels=c("income<$10k","income$10-$14,999","income$15-$24,999","income$25-$34,999","income$35-$49,999", "income$50-$74,999","income$75-$99,999","income$100-$149,999","income$150-$199,999","income>$200"))
+pivot_percent_2000<-pivot_percent_2000 |> 
+    mutate(income_level=factor(income_level,levels=c("income<$10k","income$10-$14,999","income$15-$24,999","income$25-$34,999","income$35-$49,999", "income$50-$74,999","income$75-$99,999","income$100-$149,999","income$150-$199,999","income>$200"))) |> 
+    mutate(INTERVAL2000=factor(INTERVAL2000, levels=c("1", "2", "3", "4")))
 ```
 
 
 ```{r}
 pivot_percent_2000 |> 
     ggplot(aes(income_level, household_pct, color=INTERVAL2000))+
-    geom_point(position="jitter")
+    geom_point(alpha=0.5, size = 3,
+        position=position_jitter(width=.25),
+        #color = "black"
+    )+
+#fit line (not functional yet)    
+    #geom_smooth(aes(color = INTERVAL2000, fill = INTERVAL2000), method = "lm") + 
+    scale_color_manual(values = c("1"="green", "2"="yellow", "3"="orange", "4"="red"))+
+#color scale for colorblind    
+    #scale_color_viridis(discrete = TRUE, alpha=0.75, option="D")+
+    theme_bw()
+```
+```{r}
+pivot_percent_2000 |> 
+    ggplot(aes(INTERVAL2000, household_pct, color = income_level))+
+    geom_point(alpha=0.5,
+        position=position_jitter(width=.2)
+    )+
+#fit line (not functional yet)    
+    #geom_smooth(aes(color = INTERVAL2000, fill = INTERVAL2000), method = "lm") + 
+ #scale_color_manual(values = c("1"="green", "2"="yellow", "3"="orange", "4"="red"))+
+#color scale for colorblind    
+    scale_color_viridis(discrete = TRUE, alpha=0.7, option="D")+
+    theme_bw()
 ```
 
 
@@ -84,17 +108,17 @@ right join to include only redlined census tracts and then plot median income vs
 ```{r}
 davidson_income_counts_2000 |> 
     right_join(davidson_redlining_2000) |>
-    mutate(median_income_inflated=median_household_income*(109.2/72.65)) |> 
+    mutate(median_income_inflated=median_household_income*(129.68/72.65)) |> 
     ggplot(aes(HRI2000, median_income_inflated))+
-    geom_point()+
+    geom_point(color="black", fill="")+
     scale_y_continuous(limits = c(0, 200000))
 
 ```
 ```{r}
 davidson_income_counts_2010 |> 
     right_join(davidson_redlining_2010) |>
-    mutate(median_income_inflated=median_household_income*(109.2/92)) |> 
-    ggplot(aes(HRI2010, median_household_income))+
+    mutate(median_income_inflated=median_household_income*(129.68/92)) |> 
+    ggplot(aes(HRI2010, median_income_inflated))+
     geom_point()+
     scale_y_continuous(limits = c(0, 200000))
 
@@ -103,7 +127,8 @@ davidson_income_counts_2010 |>
 ```{r}
 davidson_income_counts_2020 |> 
     right_join(davidson_redlining_2020) |>
-    ggplot(aes(HRI2020, median_household_income))+
+    mutate(median_income_inflated=median_household_income*(129.68/109.20)) |> 
+    ggplot(aes(HRI2020, median_income_inflated))+
     geom_point()+
     scale_y_continuous(limits = c(0, 200000))
 ```
