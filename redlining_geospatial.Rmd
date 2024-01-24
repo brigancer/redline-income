@@ -31,9 +31,46 @@ HRI2000 <- HRI2000 |>
     filter(str_detect(METRO_NAME, "Davidson"))
 
 ```
+set HRI levels as a vector:
+```{r}
+HRI_levels_vec <-c("1"="green", "2"="yellow", "3"="orange", "4"="red")
+```
+use HRI vector to manually set fill colors for HRI districts  
 ```{r}
 HRI2000 |> 
     ggplot()+
-    geom_sf(aes(fill = EQINT2000))
+    geom_sf(aes(fill = factor(EQINT2000)))+
+    scale_fill_manual(values = HRI_levels_vec)
 ```
 
+Now repeat for 2010:
+
+```{r}
+HRI2010 <- st_read("data/HRI2010/HRI2010.shp") |> 
+    filter(str_detect(METRO_NAME, "Davidson"))
+
+```
+```{r}
+
+HRI2010 |> 
+    ggplot()+
+    geom_sf(aes(fill = factor(EQINTERV10)))+
+    scale_fill_manual(values = HRI_levels_vec)
+```
+
+Now repeat for 2020:
+
+```{r}
+HRI2020 <- st_read("data/HRI2020/HRI2020.shp") |> 
+    filter(str_detect(METRO_NAME, "Davidson"))
+
+```
+```{r}
+
+HRI2020 |> 
+    ggplot()+
+    geom_sf(aes(fill = factor(EQINTER20)))+
+    scale_fill_manual(values = HRI_levels_vec)
+```
+
+Not exactly sure why the delineations are different for these since they are based on historicaly redlining districts and overlayed on 2000, 2010, and 2020 maps.
