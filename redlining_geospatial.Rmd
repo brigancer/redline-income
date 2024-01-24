@@ -34,6 +34,6 @@ HRI2000 <- HRI2000 |>
 ```{r}
 HRI2000 |> 
     ggplot()+
-    geom_sf()
+    geom_sf(aes(fill = EQINT2000))
 ```
 
