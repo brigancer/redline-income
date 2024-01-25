@@ -82,9 +82,7 @@ pivot_percent_2000 |>
         position=position_jitter(width=.25),
         #color = "black"
     )+
-#fit line (not functional yet)    
-    #geom_smooth(aes(color = INTERVAL2000, fill = INTERVAL2000), method = "lm") + 
-    scale_color_manual(values = c("1"="green", "2"="yellow", "3"="orange", "4"="red"))+
+    scale_color_manual(values = c("1"="green", "2"="blue", "3"="yellow", "4"="red"))+
 #color scale for colorblind    
     #scale_color_viridis(discrete = TRUE, alpha=0.75, option="D")+
     theme_bw()
@@ -95,14 +93,76 @@ pivot_percent_2000 |>
     geom_point(alpha=0.5,
         position=position_jitter(width=.2)
     )+
-#fit line (not functional yet)    
-    #geom_smooth(aes(color = INTERVAL2000, fill = INTERVAL2000), method = "lm") + 
- #scale_color_manual(values = c("1"="green", "2"="yellow", "3"="orange", "4"="red"))+
+    #scale_color_manual(values = c("1"="green", "2"="yellow", "3"="orange", "4"="red"))+
 #color scale for colorblind    
     scale_color_viridis(discrete = TRUE, alpha=0.7, option="D")+
     theme_bw()
 ```
 
+prepare income percent and count 2010 for analysis by dropping NA rows from redlining columns, removing unneeded data, columns and then pivot longer. Pivot 2010 income and show percentage of income intervals (colored by HRI)
+```{r}
+percent_redline_2010 <- davidson_income_percent_2010 |>
+    drop_na(METRO_NAME) |> 
+    select(-c(HOUSEHOLDS, median_household_income, mean_household_income, METRO_NAME, CBSA10)) |> 
+    relocate(c(HRI2010, INTERVAL2010), .before='income<$10k')
+```
+Pivot 2010 income and show percentage of income intervals (colored by HRI)
+```{r}
+pivot_percent_2010 <- percent_redline_2010 |> 
+    pivot_longer(cols= c("income<$10k","income$10-$14,999","income$15-$24,999","income$25-$34,999","income$35-$49,999", "income$50-$74,999","income$75-$99,999","income$100-$149,999","income$150-$199,999","income>$200") ,names_to = "income_level", values_to = "household_pct")
+```
+set factor levels for to force x-axis order:
+```{r}
+pivot_percent_2010<-pivot_percent_2010 |> 
+    mutate(income_level=factor(income_level,levels=c("income<$10k","income$10-$14,999","income$15-$24,999","income$25-$34,999","income$35-$49,999", "income$50-$74,999","income$75-$99,999","income$100-$149,999","income$150-$199,999","income>$200"))) |> 
+    mutate(INTERVAL2010=factor(INTERVAL2010, levels=c("1", "2", "3", "4")))
+```
+
+
+```{r}
+pivot_percent_2010 |> 
+    ggplot(aes(income_level, household_pct, color=INTERVAL2010))+
+    geom_point(alpha=0.5, size = 3,
+        position=position_jitter(width=.25),
+        #color = "black"
+    )+
+    scale_color_manual(values = c("1"="green", "2"="blue", "3"="yellow", "4"="red"))+
+#color scale for colorblind    
+    #scale_color_viridis(discrete = TRUE, alpha=0.75, option="D")+
+    theme_bw()
+```
+prepare income percent and count 2020 for analysis by dropping NA rows from redlining columns, removing unneeded data, columns and then pivot longer. Pivot 2020 income and show percentage of income intervals (colored by HRI)
+```{r}
+percent_redline_2020 <- davidson_income_percent_2020 |>
+    drop_na(METRO_NAME) |> 
+    select(-c(HOUSEHOLDS, median_household_income, mean_household_income, METRO_NAME, CBSA10)) |> 
+    relocate(c(HRI2020, INTERVAL2020), .before='income<$10k')
+```
+Pivot 2020 income and show percentage of income intervals (colored by HRI)
+```{r}
+pivot_percent_2020 <- percent_redline_2020 |> 
+    pivot_longer(cols= c("income<$10k","income$10-$14,999","income$15-$24,999","income$25-$34,999","income$35-$49,999", "income$50-$74,999","income$75-$99,999","income$100-$149,999","income$150-$199,999","income>$200") ,names_to = "income_level", values_to = "household_pct")
+```
+set factor levels for to force x-axis order:
+```{r}
+pivot_percent_2020<-pivot_percent_2020 |> 
+    mutate(income_level=factor(income_level,levels=c("income<$10k","income$10-$14,999","income$15-$24,999","income$25-$34,999","income$35-$49,999", "income$50-$74,999","income$75-$99,999","income$100-$149,999","income$150-$199,999","income>$200"))) |> 
+    mutate(INTERVAL2020=factor(INTERVAL2020, levels=c("1", "2", "3", "4")))
+```
+
+
+```{r}
+pivot_percent_2020 |> 
+    ggplot(aes(income_level, household_pct, color=INTERVAL2020))+
+    geom_point(alpha=0.5, size = 3,
+        position=position_jitter(width=.25)
+        #color = "black"
+    )+
+        scale_color_manual(values = c("1"="green", "2"="blue", "3"="yellow", "4"="red"))+
+#color scale for colorblind    
+        #scale_color_viridis(discrete = TRUE, alpha=0.75, option="D")+
+        theme_bw()
+```
 
 right join to include only redlined census tracts and then plot median income vs redline index (with constrained y axis)
 ```{r}
@@ -110,7 +170,7 @@ davidson_income_counts_2000 |>
     right_join(davidson_redlining_2000) |>
     mutate(median_income_inflated=median_household_income*(129.68/72.65)) |> 
     ggplot(aes(HRI2000, median_income_inflated))+
-    geom_point(color="black", fill="")+
+    geom_point()+
     scale_y_continuous(limits = c(0, 200000))
 
 ```
