@@ -33,14 +33,15 @@ HRI2000 <- HRI2000 |>
 ```
 set HRI levels as a vector:
 ```{r}
-HRI_levels_vec <-c("1"="green", "2"="yellow", "3"="orange", "4"="red")
+HRI_levels_vec <-c("1"="green", "2"="blue", "3"="yellow", "4"="red")
 ```
 use HRI vector to manually set fill colors for HRI districts  
 ```{r}
 HRI2000 |> 
     ggplot()+
-    geom_sf(aes(fill = factor(EQINT2000)))+
-    scale_fill_manual(values = HRI_levels_vec)
+    geom_sf(aes(color = factor(EQINT2000)))+
+    scale_color_manual(values = HRI_levels_vec)+
+    theme_bw()
 ```
 
 Now repeat for 2010:
@@ -74,3 +75,26 @@ HRI2020 |>
 ```
 
 Not exactly sure why the delineations are different for these since they are based on historicaly redlining districts and overlayed on 2000, 2010, and 2020 maps.
+
+
+import University of Richmond geojson:
+
+```{r}
+UR_inequality <- st_read('data/mappinginequality.json') |> 
+    filter(str_detect(city, "Nashville"))
+
+```
+create new vec based on HOLC grade for UR dataset
+```{r}
+HOLC_grade_vec <-c("A"="green", "B"="blue", "C"="yellow", "D"="red")
+
+```
+
+```{r}
+UR_inequality |> 
+    ggplot()+
+    geom_sf(aes(fill = factor(grade)))+
+    scale_fill_manual(values = HOLC_grade_vec)
+
+```
+
