@@ -1,8 +1,7 @@
-# DRAFT written by AI
 
 # Redlining and Socioeconomic Disparities in Davidson County
 
-This repository explores the relationship between historical redlining practices and socioeconomic disparities in Davidson County. We leverage census data, historical redlining maps, and geospatial analysis to investigate the impact of redlining on income distribution, household counts, and spatial patterns.
+This repository explores the relationship between historical redlining practices and modern socioeconomic disparities in Davidson County. We leverage census data, historical redlining maps, and geospatial analysis to investigate the impact of redlining on income distribution, household counts, and spatial patterns.
 
 ## Project Workflow
 
@@ -42,7 +41,6 @@ This repository explores the relationship between historical redlining practices
 *   How does historical redlining correlate with income levels in different areas of Davidson County?
 *   Have income disparities changed over time (2000-2020) in historically redlined areas?
 *   Are there spatial patterns in the distribution of income and redlining grades?
-*   How do redlining boundaries from different data sources compare?
 
 ## Repository Contents
 
@@ -67,6 +65,3 @@ This repository explores the relationship between historical redlining practices
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
-## License
-
-This project is licensed under the MIT License.
